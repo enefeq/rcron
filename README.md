@@ -7,6 +7,10 @@ Cron job redundancy and failover for a group of machines.
 
 This is a python reimplementation of [Benjamin Pineau's rcron tool](https://code.google.com/p/rcron/), and is intended as a drop-in replacement.
 
+### Fork notes
+
+This repo was forked from [https://github.com/EvanK/rcron]. The functionality remains the same, but the project layout has been changed to work with ansible-galaxy roles.
+
 ### Requirements
 
 A POSIX system with a Python 2.4+ interpreter, and a separate tool to maintain state across machines -- such as [keepalived](http://www.keepalived.org/).

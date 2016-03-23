@@ -9,7 +9,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def setUp(self):
         self.cwd = os.path.dirname(os.path.abspath(__file__))
-        self.progname = self.cwd+'/../src/rcron.py'
+        self.progname = self.cwd+'/../files/rcron.py'
         self.progversion = '0.2.0'
         self.statepath = '/tmp/rcron.state'
         self.usage = "Usage:\nrcron.py [--help] [--version] [--generate] [--conf file] command [args]"

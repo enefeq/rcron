@@ -1,7 +1,7 @@
 ---
 - name: "Install rcron"
   copy: >
-    src=../../../../src/rcron.py
+    src=rcron.py
     dest=/bin/rcron
     owner=root
     group=root
@@ -16,7 +16,7 @@
 
 - name: "Create rcron config"
   copy: >
-    src=../../../../etc/rcron.conf.example
+    src=rcron.conf.example
     dest=/etc/rcron/rcron.conf
     owner=root
     group=root
@@ -24,7 +24,7 @@
 
 - name: "Install rcron init script"
   copy: >
-    src=../../../../etc/debian.initd.sh
+    src=debian.initd.sh
     dest=/etc/init.d/rcron
     owner=root
     group=root
