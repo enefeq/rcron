@@ -1,0 +1,7 @@
+galaxy_info:
+    author: Keith Bussell
+    description: 
+      license: MIT
+      min_ansible_version: 1.9
+
+dependencies: []
