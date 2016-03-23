@@ -2,5 +2,6 @@
 - name: restart rcron
   service: name=rcron state=restarted
 
-- name: restart keepalived
-  service: name=keepalived state=restarted
+# Temporarily disable this until we can get keepalived working
+#- name: restart keepalived
+#  service: name=keepalived state=restarted
