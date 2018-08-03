@@ -31,45 +31,6 @@
     mode=0755
   notify: restart rcron
 
-- name: "Add keepalived stable ppa"
-  apt_repository: repo='ppa:keepalived/stable'
-
-- name: "Pin ppa keepalived package"
-  copy: >
-    content="Package: keepalived\nPin: release o=LP-PPA-keepalived-stable\nPin-Priority: 900\n"
-    dest=/etc/apt/preferences.d/keepalived-stable-900
-    owner=root
-    group=root
-    mode=0644
-
-- name: "Install keepalived with unicast support"
-  apt: >
-    name=keepalived
-    state=latest
-    update_cache=yes
-
-- name: "Ensure DAEMON_ARGS defined in keepalived init.d"
-  lineinfile: >
-    dest=/etc/init.d/keepalived
-    regexp='^DAEMON_ARGS='
-    line="DAEMON_ARGS=\"{{ '-x' if keepalived_snmp else '' }}\""
-    insertafter='^CONFIG='
-
-- name: "Ensure $DAEMON_ARGS used in keepalived init.d start/restart"
-  replace: >
-    dest=/etc/init.d/keepalived
-    regexp='(start-stop-daemon(?:.*?\n?.*?)--start(?:.*?\n?.*?)--exec \$DAEMON);'
-    replace='\1 -- $DAEMON_ARGS;'
-
-- name: "Create keepalived config"
-  template: >
-    src=keepalived.conf.j2
-    dest=/etc/keepalived/keepalived.conf
-    owner=root
-    group=root
-    mode=0644
-  notify: restart keepalived
-
 - name: "Log every reboot (through rcron)"
   cron: >
     name="rcron reboot"
