@@ -1,6 +1,3 @@
 ---
 - name: restart rcron
   service: name=rcron state=restarted
-
-- name: restart keepalived
-  service: name=keepalived state=restarted
