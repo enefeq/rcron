@@ -157,10 +157,14 @@ class Rcron:
         print("Usage:\n%s [--help] [--version] [--generate] [--conf file] command [args]\n" % self.progname, file=sys.stderr)
         sys.exit(1)
 
-class FakeSecHead(object):
-    def __init__(self, fp):
+
+class FakeSecHead:
+    """
+    Allow iterating over the lines in a file-like object, but include a section header as the first line
+    """
+    def __init__(self, fp, sechead='[default]\n'):
         self.fp = fp
-        self.sechead = '[default]\n'
+        self.sechead = sechead
 
     def readline(self):
         if self.sechead:
@@ -170,6 +174,13 @@ class FakeSecHead(object):
                 self.sechead = None
         else:
             return self.fp.readline()
+
+    # Make this class iterable over the lines of fp,
+    # But include self.sechead as the first iterated line
+    def __iter__(self):
+        yield self.sechead
+        yield from self.fp
+
 
 if __name__ == '__main__':
     Rcron()
