@@ -60,12 +60,12 @@ class Rcron:
             self.write_syslog("cluster=%s state=passive status=ignore cmd=%s" % (self.config.get('default', 'cluster_name'), ' '.join(self.args)))
             sys.exit(0)
 
-        start = time.clock()
+        start = time.time()
         self.write_syslog("cluster=%s state=active status=start cmd=%s" % (self.config.get('default', 'cluster_name'), ' '.join(self.args)))
 
         rc = os.system("nice -n %s %s" % (self.config.get('default', 'nice_level'), ' '.join(self.args)))
 
-        runtime = start - time.clock()
+        runtime = start - time.time()
 
         self.write_syslog("cluster=%s state=active status=%s dur=%i cmd=%s" % (self.config.get('default', 'cluster_name'), 'ok' if rc == 0 else 'fail', runtime, ' '.join(self.args)))
 
@@ -119,7 +119,7 @@ class Rcron:
                 'syslog_level': 'LOG_INFO',
                 'nice_level': '19'
             })
-            config.read(FakeSecHead(open(conf_file)))
+            config.read_file(FakeSecHead(open(conf_file)))
 
             self.config = config
         except configparser.Error as e:
