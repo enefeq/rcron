@@ -1,11 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import sys
 import syslog
 import time
 import os.path
 import getopt
-import ConfigParser
+import configparser
 import inspect
 
 class Rcron:
@@ -31,7 +31,7 @@ class Rcron:
             if opt == '--help':
                 self.usage()
             if opt == '--version':
-                print "rcron %s" % self.VERSION
+                print("rcron %s" % self.VERSION)
                 sys.exit(0)
 
         # attempt loading config & opening syslog
@@ -47,7 +47,7 @@ class Rcron:
                     f.close()
                     self.write_syslog('cluster=%s state=%s status=generate file=%s' % (self.config.get('default', 'cluster_name'), self.config.get('default', 'default_state'), self.config.get('default', 'state_file')))
                     sys.exit(0)
-                except IOError, e:
+                except IOError as e:
                     self.warn("failed to generate state file '%s' : %s" % (self.config.get('default', 'state_file'), e.strerror))
                     sys.exit(1)
 
@@ -60,12 +60,12 @@ class Rcron:
             self.write_syslog("cluster=%s state=passive status=ignore cmd=%s" % (self.config.get('default', 'cluster_name'), ' '.join(self.args)))
             sys.exit(0)
 
-        start = time.clock()
+        start = time.time()
         self.write_syslog("cluster=%s state=active status=start cmd=%s" % (self.config.get('default', 'cluster_name'), ' '.join(self.args)))
 
         rc = os.system("nice -n %s %s" % (self.config.get('default', 'nice_level'), ' '.join(self.args)))
 
-        runtime = start - time.clock()
+        runtime = start - time.time()
 
         self.write_syslog("cluster=%s state=active status=%s dur=%i cmd=%s" % (self.config.get('default', 'cluster_name'), 'ok' if rc == 0 else 'fail', runtime, ' '.join(self.args)))
 
@@ -99,7 +99,7 @@ class Rcron:
             content = f.read()
             f.close()
             return [content.strip(), None]
-        except IOError, e:
+        except IOError as e:
             return [None, e.strerror]
 
     def load_config(self):
@@ -111,7 +111,7 @@ class Rcron:
                 break
 
         try:
-            config = ConfigParser.RawConfigParser({
+            config = configparser.RawConfigParser({
                 'cluster_name': 'default_cluster',
                 'state_file': self.DEF_STATE_FILES[0],
                 'default_state': 'active',
@@ -119,13 +119,13 @@ class Rcron:
                 'syslog_level': 'LOG_INFO',
                 'nice_level': '19'
             })
-            config.readfp(FakeSecHead(open(conf_file)))
+            config.read_file(FakeSecHead(open(conf_file)))
 
             self.config = config
-        except ConfigParser.Error, e:
+        except configparser.Error as e:
             self.warn("couldn't open config: %s" % e)
             sys.exit(1)
-        except IOError, e:
+        except IOError as e:
             self.warn("failed to open config file '%s' : %s" % (conf_file, e.strerror))
             sys.exit(1)
 
@@ -147,20 +147,24 @@ class Rcron:
 
         warning = "%s (%s:%d, %s) warning: %s" % (self.progname, info.filename, info.lineno, info.function, message)
 
-        print >> sys.stderr, warning
+        print(warning, file=sys.stderr)
         syslog.syslog(syslog.LOG_INFO, warning)
 
     def usage(self, message=None):
         if message:
-            print >> sys.stderr, "%s\n" % message
+            print("%s\n" % message, file=sys.stderr)
 
-        print >> sys.stderr, "Usage:\n%s [--help] [--version] [--generate] [--conf file] command [args]\n" % self.progname
+        print("Usage:\n%s [--help] [--version] [--generate] [--conf file] command [args]\n" % self.progname, file=sys.stderr)
         sys.exit(1)
 
-class FakeSecHead(object):
-    def __init__(self, fp):
+
+class FakeSecHead:
+    """
+    Allow iterating over the lines in a file-like object, but include a section header as the first line
+    """
+    def __init__(self, fp, sechead='[default]\n'):
         self.fp = fp
-        self.sechead = '[default]\n'
+        self.sechead = sechead
 
     def readline(self):
         if self.sechead:
@@ -170,6 +174,13 @@ class FakeSecHead(object):
                 self.sechead = None
         else:
             return self.fp.readline()
+
+    # Make this class iterable over the lines of fp,
+    # But include self.sechead as the first iterated line
+    def __iter__(self):
+        yield self.sechead
+        yield from self.fp
+
 
 if __name__ == '__main__':
     Rcron()
